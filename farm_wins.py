@@ -1,3 +1,6 @@
+"""
+The free version script written by t.me/zakovskiy
+"""
 import time
 import threading
 from durakonline import durakonline
@@ -8,13 +11,6 @@ MAIN_TOKEN: str = ""
 DEBUG_MODE: bool = False
 PASSWORD: str = "zakovskiy"
 BET: int = 100
-SERVERS: [] = [
-    "u1",
-    "u2",
-    "u3",
-    "u4",
-    "u5",
-]
 
 class FarmWins:
 
@@ -23,7 +19,7 @@ class FarmWins:
         main.game.join(PASSWORD, game.id)
         main._get_data("game")
         for i in range(count):
-            self.log(f"{i+1} game", f"CONSOLE|{server_id}")
+            self.log(f"{i+1} game", server_id)
             main.game.ready()
             bot.game.ready()
 
@@ -51,17 +47,24 @@ class FarmWins:
                     main.game._pass()
             bot.game.surrender()
             bot._get_data("game_over")
+        main.game.leave(game.id)
         self.log("Leave", "MAIN")
+        data = main._get_data("uu")
+        while data["k"] != "points":
+            data = main._get_data("uu")
+        self.log(f"Balance: {data.get('v')}", "MAIN")
 
     def start(self) -> None:
-        bot = durakonline.Client(tag="[BOT]", server_id=SERVERS[0], debug=DEBUG_MODE)
-        token = self.register_bot_account(bot)
-        self.acc(token)
+        count = int(input("<< Count: "))
+        for _ in range(count):
+            bot = durakonline.Client(tag="[BOT]", server_id="u1", debug=DEBUG_MODE)
+            token = self.register_bot_account(bot)
+            self.acc(token)
 
     def acc(self, token: str) -> None:
-        main = durakonline.Client(MAIN_TOKEN, server_id=SERVERS[0], tag="[MAIN]", debug=DEBUG_MODE)
-        bot = durakonline.Client(token, server_id=SERVERS[0], tag="[BOT]", debug=DEBUG_MODE)
-        self.start_game(main, bot, SERVERS[0])
+        main = durakonline.Client(MAIN_TOKEN, server_id="u1", tag="[MAIN]", debug=DEBUG_MODE)
+        bot = durakonline.Client(token, server_id="u1", tag="[BOT]", debug=DEBUG_MODE)
+        self.start_game(main, bot, "u1")
 
     def register_bot_account(self, bot) -> str:
         while True:
