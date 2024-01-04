@@ -14,6 +14,7 @@ FILE_DIRECTORY: str = "./accounts.txt"
 DEBUG_MODE: bool = False
 REMOVE_INVALID_ACCOUNTS: bool = True
 
+
 class DurakOnlineTools:
 
     tokens: [str] = []
@@ -70,7 +71,8 @@ class DurakOnlineTools:
         with open(FILE_DIRECTORY, 'w') as file:
             for token in self.tokens:
                 try:
-                    account = durakonline.Client(token=token, debug=DEBUG_MODE)
+                    account = durakonline.Client(debug=DEBUG_MODE)
+                    account.authorization.signin_by_access_token(token)
                     file.write(f"{token}\n")
                 except Exception as e:
                     self.log("Failed log account", token)
@@ -134,6 +136,7 @@ class DurakOnlineTools:
 
     def log(self, message: str, server: str) -> None:
         print(f">> [{server}] [{datetime.now().strftime('%H:%M:%S')}] {message}")
+
 
 if __name__ == "__main__":
     DurakOnlineTools()
