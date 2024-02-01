@@ -1,22 +1,17 @@
 import random
-import sys
-import math
-import threading
 import time
 from durakonline import durakonline
 from datetime import datetime
 import base64
-import tkinter
-import tkinter.messagebox
 import customtkinter
 
 
 FILE_DIRECTORY: str = "" # tokens.txt directory
-IMG_DIRECTORY: str = "" # image directory
-DEBUG_MODE: bool = False # Debug
-REMOVE_INVALID_ACCOUNTS: bool = False
+IMG_DIRECTORY: str = "" # image for avatar directory
+DEBUG_MODE: bool = True # Debug mode
+REMOVE_INVALID_ACCOUNTS: bool = False # Remove invalid accounts
 
-customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
+customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 class App(customtkinter.CTk):
@@ -27,46 +22,47 @@ class App(customtkinter.CTk):
         super().__init__()
 
         self.title("Tools")
-        self.geometry(f"{350}x{350}")
+        self.geometry(f"{350}x{400}")
         self.resizable(False, False)
 
-        # self.grid_columnconfigure(1, weight=1)
-        # self.grid_columnconfigure((2, 3), weight=0)
-
-        self.nicknames =[] # Enter your random nick here
+        self.nicknames =["Elena Martini", "Andrew Petrol"] # Enter your random nicknames here
 
         self.authbutton = customtkinter.CTkButton(master=self,text="Authorizate",command=self.authorization_accounts, width=5)
-        self.authbutton.grid(row=5, column=1, padx=(20, 20), pady=(20, 20))
+        self.authbutton.grid(row=7, column=1, padx=70)
 
         self.get_info = customtkinter.CTkButton(master=self,text="Get info",command=self.get_account_info, corner_radius=8)
-        self.get_info.grid(row=0, column=0, padx=20, pady=(10, 10))
+        self.get_info.grid(row=0, column=0, pady=5)
 
         self.nickbtn = customtkinter.CTkButton(master=self,text="Random nick",command=self.random_nickname, corner_radius=8)
-        self.nickbtn.grid(row=1, column=0, padx=20, pady=(10, 10))
+        self.nickbtn.grid(row=1, column=0, pady=5)
 
         self.nickenter = customtkinter.CTkButton(master=self, text="Enter nick", command=self.nickname_enter, corner_radius=8)
-        self.nickenter.grid(row=2, column=0, padx=20, pady=(10, 10))
+        self.nickenter.grid(row=2, column=0, pady=5)
 
         self.update_avatar = customtkinter.CTkButton(master=self, text="Update avatar", command=self.update_avatar, corner_radius=8)
-        self.update_avatar.grid(row=3, column=0, padx=20, pady=(10, 10))
+        self.update_avatar.grid(row=3, column=0, pady=5)
 
         self.del_reqs = customtkinter.CTkButton(master=self, text="Delete requests", command=self.delete_requests, corner_radius=8)
-        self.del_reqs.grid(row=4, column=0, padx=20, pady=(10, 10))
+        self.del_reqs.grid(row=4, column=0, pady=5)
 
-        self.del_friends = customtkinter.CTkButton(master=self, text="Delete requests", command=self.delete_friends, corner_radius=8)
-        self.del_friends.grid(row=5, column=0, padx=20, pady=(10, 10))
+        self.del_friends = customtkinter.CTkButton(master=self, text="Delete friends", command=self.delete_friends, corner_radius=8)
+        self.del_friends.grid(row=5, column=0, pady=5)
 
         self.get_frlist = customtkinter.CTkButton(master=self, text="Get friend list", command=self.get_friend_list, corner_radius=8)
-        self.get_frlist.grid(row=5, column=0, padx=10, pady=(10, 10))
+        self.get_frlist.grid(row=6, column=0, pady=5)
+
+        self.free_bonus = customtkinter.CTkButton(master=self, text="Get free bonus", command=self.get_free, corner_radius=8)
+        self.free_bonus.grid(row=7, column=0, pady=5)
 
         self.bylabel = customtkinter.CTkLabel(master=self, text="by zakovskiy | GUI by chelicx")
-        self.bylabel.grid(row=6, column=0, padx=20, pady=(10, 10))
+        self.bylabel.grid(row=8, column=0, pady=68, padx=10)
 
 
     def __done(self) -> None:
         self.log("Done\n", "CONSOLE")
 
     def authorization_accounts(self) -> None:
+        self.accounts = []
         with open(FILE_DIRECTORY, 'r') as file:
             self.tokens = file.read().split()
         self.log("Authorizations accounts::", "CONSOLE")
@@ -94,6 +90,7 @@ class App(customtkinter.CTk):
                 data = account._get_data("uu")
             print(f"New name>> {data['v']}")
             time.sleep(.2)
+        self.__done()
 
     def nickname_enter(self):
         dialog = customtkinter.CTkInputDialog(text="Enter your nick", title="Change nick")
@@ -113,7 +110,7 @@ class App(customtkinter.CTk):
             data = account._get_data("uu")
             while data["k"] != "avatar":
                 data = account._get_data("uu")
-            print(f"New avatar >> {data['v']}")
+            print(f"New avatar>> {data['v']}")
         self.__done()
 
     def delete_requests(self):
@@ -161,6 +158,13 @@ class App(customtkinter.CTk):
                     print(f"Ник: {friend.user.name}")
         self.__done()
 
+    def get_free(self):
+        for account in self.accounts:
+            account.buy_points(0)
+            time.sleep(.4)
+            print(f"[{account.uid}] Successful!")
+        self.__done()
+
     def get_account_info(self) -> None:
         for account in self.accounts:
             print(f"""Token/UID {account.token} / {account.uid}
@@ -172,8 +176,6 @@ Avatar: {account.info.get('avatar')}\n""")
     def log(self, message: str, server: str) -> None:
         print(f">> [{server}] [{datetime.now().strftime('%H:%M:%S')}] {message}")
 
-
 if __name__ == "__main__":
     app = App()
     app.mainloop()
-
